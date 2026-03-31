@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Sazanavi</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #f2f2f2;
+}
+.container {
+  background: white;
+  padding: 20px;
+  margin: 50px auto;
+  width: 300px;
+  border-radius: 10px;
+}
+button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 100%;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>📘 Sazanavi</h2>
+  <p id="question"></p>
+
+  <button onclick="answer('A')" id="A"></button>
+  <button onclick="answer('B')" id="B"></button>
+  <button onclick="answer('C')" id="C"></button>
+  <button onclick="answer('D')" id="D"></button>
+
+  <p id="score"></p>
+</div>
+
+<audio id="wrongSound" src="https://www.myinstants.com/media/sounds/fail.mp3"></audio>
+
+<script>
+const questions = [
+  {
+    q: "2 + 2 kaçtır?",
+    A: "3",
+    B: "4",
+    C: "5",
+    D: "6",
+    correct: "B"
+  },
+  {
+    q: "5 x 3 kaçtır?",
+    A: "15",
+    B: "10",
+    C: "20",
+    D: "8",
+    correct: "A"
+  }
+];
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+  let q = questions[current];
+  document.getElementById("question").innerText = q.q;
+  document.getElementById("A").innerText = "A) " + q.A;
+  document.getElementById("B").innerText = "B) " + q.B;
+  document.getElementById("C").innerText = "C) " + q.C;
+  document.getElementById("D").innerText = "D) " + q.D;
+}
+
+function answer(choice) {
+  let q = questions[current];
+
+  if(choice === q.correct) {
+    score++;
+    confetti();
+  } else {
+    let sound = document.getElementById("wrongSound");
+    sound.play();
+    alert("TAKLAYA GELDİN 😄");
+  }
+
+  current++;
+
+  if(current < questions.length) {
+    setTimeout(loadQuestion, 500);
+  } else {
+    document.querySelector(".container").innerHTML =
+      "<h2>Test Bitti 🎉</h2><p>Skor: " + score + "/" + questions.length + "</p>";
+  }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
