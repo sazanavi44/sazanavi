@@ -1,105 +1,153 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Sazanavi</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Netbilim Dershanesi</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 body{
-  font-family: Arial;
-  background: linear-gradient(120deg,#4facfe,#00f2fe);
-  text-align:center;
-  color:white;
   margin:0;
-  padding:0;
+  font-family:Arial;
+  background:#9fd8ff;
+  color:white;
 }
 
-.box{
-  background:white;
-  color:black;
-  width:90%;
-  max-width:500px;
-  margin:50px auto;
-  padding:20px;
+.sidebar{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:180px;
+  background:rgba(0,60,120,0.85);
+  padding:12px;
   border-radius:15px;
-  box-shadow:0 0 15px rgba(0,0,0,0.2);
 }
 
-#question{
-  font-size:18px;
-  line-height:1.5;
-  word-wrap:break-word;
-}
-
-button{
+.menu-btn{
   width:100%;
+  margin:6px 0;
   padding:10px;
-  margin:8px 0;
-  font-size:16px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
 }
 
-button:hover{
-  background:#eee;
+.card{
+  margin-left:220px;
+  padding:30px;
 }
 
-#score{
-  margin-top:10px;
-  font-weight:bold;
+.box{
+  background:rgba(0,60,120,0.75);
+  padding:20px;
+  border-radius:15px;
+}
+
+button.option{
+  width:100%;
+  margin:6px 0;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  text-align:center;
+  font-size:13px;
+  padding:6px;
+  background:rgba(0,0,0,0.2);
 }
 </style>
 </head>
 
 <body>
 
-<h1>📘 SAZANAVİ</h1>
-
-<div class="box">
-  <h3 id="question"></h3>
-
-  <button onclick="answer('A')" id="A"></button>
-  <button onclick="answer('B')" id="B"></button>
-  <button onclick="answer('C')" id="C"></button>
-  <button onclick="answer('D')" id="D"></button>
-
-  <p id="score"></p>
+<div class="sidebar">
+  <button class="menu-btn" onclick="selectCategory('turkce')">Türkçe</button>
+  <button class="menu-btn" onclick="selectCategory('matematik')">Matematik</button>
+  <button class="menu-btn" onclick="selectCategory('fen')">Fen</button>
 </div>
 
+<div class="card">
+  <h2>Netbilim Dershanesi Sorularına Hoş Geldiniz</h2>
+  <p>Sizi sazan gibi düşürecek sorular burada.</p>
+
+  <div class="box" id="box">
+    <h3 id="qText">Bir kategori seç</h3>
+
+    <button class="option" id="A" onclick="answer('A')"></button>
+    <button class="option" id="B" onclick="answer('B')"></button>
+    <button class="option" id="C" onclick="answer('C')"></button>
+    <button class="option" id="D" onclick="answer('D')"></button>
+
+    <p id="info"></p>
+  </div>
+</div>
+
+<div class="footer">Yapımcı: Emir ALP</div>
+
 <script>
-const question = {
-  q:"Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
-  A:"I: 30 N — II: 90 N — III: 480 J",
-  B:"I: 40 N — II: 90 N — III: 480 J",
-  C:"I: 30 N — II: 60 N — III: 480 J",
-  D:"I: 40 N — II: 60 N — III: 240 J",
-  correct:"B"
+
+const questions = {
+  turkce: [],
+  matematik: [],
+  fen: [
+    {
+      q: "Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
+      A: "I: 30 N — II: 90 N — III: 480 J",
+      B: "I: 40 N — II: 90 N — III: 480 J",
+      C: "I: 30 N — II: 60 N — III: 480 J",
+      D: "I: 40 N — II: 60 N — III: 240 J",
+      correct: "B"
+    }
+  ]
 };
 
-let score = 0;
+let current = null;
 
-function load(){
-  document.getElementById("question").innerText = question.q;
-  document.getElementById("A").innerText = "A) "+question.A;
-  document.getElementById("B").innerText = "B) "+question.B;
-  document.getElementById("C").innerText = "C) "+question.C;
-  document.getElementById("D").innerText = "D) "+question.D;
-  document.getElementById("score").innerText = "Skor: "+score+"/1";
-}
+function selectCategory(cat){
+  current = cat;
 
-function answer(x){
-  if(x === question.correct){
-    score++;
-    alert("Doğru 🎉");
-  }else{
-    alert("Taklaya geldin 😄");
+  const list = questions[cat];
+
+  if(!list || list.length === 0){
+    document.getElementById("qText").innerText = "Bu kategoride soru yok";
+    document.getElementById("A").innerText = "";
+    document.getElementById("B").innerText = "";
+    document.getElementById("C").innerText = "";
+    document.getElementById("D").innerText = "";
+    return;
   }
 
-  document.getElementById("score").innerText = "Skor: "+score+"/1";
+  const q = list[0];
+
+  document.getElementById("qText").innerText = q.q;
+  document.getElementById("A").innerText = "A) " + q.A;
+  document.getElementById("B").innerText = "B) " + q.B;
+  document.getElementById("C").innerText = "C) " + q.C;
+  document.getElementById("D").innerText = "D) " + q.D;
 }
 
-load();
+function answer(choice){
+  if(!current) return;
+
+  const q = questions[current][0];
+  if(!q) return;
+
+  if(choice === q.correct){
+    confetti();
+    document.getElementById("info").innerText = "Doğru 🎉";
+  } else {
+    document.getElementById("info").innerText = "sazan oldun yazık sana";
+  }
+}
+
 </script>
 
 </body>
