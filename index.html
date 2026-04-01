@@ -10,62 +10,86 @@ body{
   background: linear-gradient(120deg,#4facfe,#00f2fe);
   text-align:center;
   color:white;
+  margin:0;
+  padding:0;
 }
 
 .box{
   background:white;
   color:black;
-  width:340px;
+  width:90%;
+  max-width:500px;
   margin:50px auto;
   padding:20px;
   border-radius:15px;
+  box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+#question{
+  font-size:18px;
+  line-height:1.5;
+  word-wrap:break-word;
 }
 
 button{
   width:100%;
   padding:10px;
-  margin:6px 0;
+  margin:8px 0;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#eee;
+}
+
+#score{
+  margin-top:10px;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<h1>SAZANAVİ</h1>
+<h1>📘 SAZANAVİ</h1>
 
 <div class="box">
   <h3 id="question"></h3>
 
-  <button id="A" onclick="answer('A')"></button>
-  <button id="B" onclick="answer('B')"></button>
-  <button id="C" onclick="answer('C')"></button>
-  <button id="D" onclick="answer('D')"></button>
+  <button onclick="answer('A')" id="A"></button>
+  <button onclick="answer('B')" id="B"></button>
+  <button onclick="answer('C')" id="C"></button>
+  <button onclick="answer('D')" id="D"></button>
 
   <p id="score"></p>
 </div>
 
 <script>
-const q = {
-  soru:"Bir öğrenci 240 N yükü kaldırıyor. Doğru cevap hangisi?",
+const question = {
+  q:"Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
   A:"I: 30 N — II: 90 N — III: 480 J",
   B:"I: 40 N — II: 90 N — III: 480 J",
   C:"I: 30 N — II: 60 N — III: 480 J",
   D:"I: 40 N — II: 60 N — III: 240 J",
-  dogru:"B"
+  correct:"B"
 };
 
 let score = 0;
 
-window.onload = function(){
-  document.getElementById("question").innerText = q.soru;
-  document.getElementById("A").innerText = "A) "+q.A;
-  document.getElementById("B").innerText = "B) "+q.B;
-  document.getElementById("C").innerText = "C) "+q.C;
-  document.getElementById("D").innerText = "D) "+q.D;
-};
+function load(){
+  document.getElementById("question").innerText = question.q;
+  document.getElementById("A").innerText = "A) "+question.A;
+  document.getElementById("B").innerText = "B) "+question.B;
+  document.getElementById("C").innerText = "C) "+question.C;
+  document.getElementById("D").innerText = "D) "+question.D;
+  document.getElementById("score").innerText = "Skor: "+score+"/1";
+}
 
 function answer(x){
-  if(x === q.dogru){
+  if(x === question.correct){
     score++;
     alert("Doğru 🎉");
   }else{
@@ -74,6 +98,8 @@ function answer(x){
 
   document.getElementById("score").innerText = "Skor: "+score+"/1";
 }
+
+load();
 </script>
 
 </body>
