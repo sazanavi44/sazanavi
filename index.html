@@ -20,6 +20,7 @@ body{
   padding:20px;
   border-radius:15px;
 }
+
 button{
   width:100%;
   padding:10px;
@@ -33,19 +34,19 @@ button{
 <h1>SAZANAVİ</h1>
 
 <div class="box">
-  <h3 id="q"></h3>
+  <h3 id="question"></h3>
 
-  <button onclick="ans('A')" id="A"></button>
-  <button onclick="ans('B')" id="B"></button>
-  <button onclick="ans('C')" id="C"></button>
-  <button onclick="ans('D')" id="D"></button>
+  <button id="A" onclick="answer('A')"></button>
+  <button id="B" onclick="answer('B')"></button>
+  <button id="C" onclick="answer('C')"></button>
+  <button id="D" onclick="answer('D')"></button>
 
   <p id="score"></p>
 </div>
 
 <script>
 const q = {
-  soru:"Bir öğrenci 240 N yükü kaldırıyor... doğru seçenek hangisi?",
+  soru:"Bir öğrenci 240 N yükü kaldırıyor. Doğru cevap hangisi?",
   A:"I: 30 N — II: 90 N — III: 480 J",
   B:"I: 40 N — II: 90 N — III: 480 J",
   C:"I: 30 N — II: 60 N — III: 480 J",
@@ -55,13 +56,15 @@ const q = {
 
 let score = 0;
 
-document.getElementById("q").innerText = q.soru;
-document.getElementById("A").innerText = "A) "+q.A;
-document.getElementById("B").innerText = "B) "+q.B;
-document.getElementById("C").innerText = "C) "+q.C;
-document.getElementById("D").innerText = "D) "+q.D;
+window.onload = function(){
+  document.getElementById("question").innerText = q.soru;
+  document.getElementById("A").innerText = "A) "+q.A;
+  document.getElementById("B").innerText = "B) "+q.B;
+  document.getElementById("C").innerText = "C) "+q.C;
+  document.getElementById("D").innerText = "D) "+q.D;
+};
 
-function ans(x){
+function answer(x){
   if(x === q.dogru){
     score++;
     alert("Doğru 🎉");
