@@ -15,6 +15,20 @@ body{
   color:white;
 }
 
+/* 🔥 SHAKE EFEKTİ */
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-6px,3px); }
+  40% { transform: translate(6px,-3px); }
+  60% { transform: translate(-6px,3px); }
+  80% { transform: translate(6px,-3px); }
+  100% { transform: translate(0,0); }
+}
+
+.shake{
+  animation: shake 0.4s;
+}
+
 .sidebar{
   position:fixed;
   top:15px;
@@ -122,19 +136,26 @@ let current = null;
 let timer = null;
 let timeLeft = 180;
 
+function shakeScreen(){
+  document.body.classList.add("shake");
+  setTimeout(() => {
+    document.body.classList.remove("shake");
+  }, 400);
+}
+
 function startTimer(){
   clearInterval(timer);
   timeLeft = 180;
 
   timer = setInterval(() => {
     timeLeft--;
-
     document.getElementById("timer").innerText = "Süre: " + timeLeft;
 
     if(timeLeft <= 0){
       clearInterval(timer);
       document.getElementById("info").innerText = "sazan oldun yazık sana";
-      nextQuestion();
+      shakeScreen();
+      setTimeout(nextQuestion, 1000);
     }
   }, 1000);
 }
@@ -185,6 +206,7 @@ function answer(choice){
     document.getElementById("info").innerText = "Doğru 🎉";
   } else {
     document.getElementById("info").innerText = "sazan oldun yazık sana";
+    shakeScreen(); // 🔥 EKLENDİ
   }
 
   setTimeout(() => {
