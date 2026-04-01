@@ -63,6 +63,13 @@ button.option{
   padding:6px;
   background:rgba(0,0,0,0.2);
 }
+
+#timer{
+  font-size:18px;
+  margin-bottom:10px;
+  color:yellow;
+  font-weight:bold;
+}
 </style>
 </head>
 
@@ -78,7 +85,9 @@ button.option{
   <h2>Netbilim Dershanesi Sorularına Hoş Geldiniz</h2>
   <p>Sizi sazan gibi düşürecek sorular burada.</p>
 
-  <div class="box" id="box">
+  <div class="box">
+    <div id="timer">Süre: 180</div>
+
     <h3 id="qText">Bir kategori seç</h3>
 
     <button class="option" id="A" onclick="answer('A')"></button>
@@ -110,11 +119,34 @@ const questions = {
 };
 
 let current = null;
+let timer = null;
+let timeLeft = 180;
+
+function startTimer(){
+  clearInterval(timer);
+  timeLeft = 180;
+
+  timer = setInterval(() => {
+    timeLeft--;
+
+    document.getElementById("timer").innerText = "Süre: " + timeLeft;
+
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      document.getElementById("info").innerText = "sazan oldun yazık sana";
+      nextQuestion();
+    }
+  }, 1000);
+}
 
 function selectCategory(cat){
   current = cat;
+  loadQuestion();
+}
 
-  const list = questions[cat];
+function loadQuestion(){
+
+  const list = questions[current];
 
   if(!list || list.length === 0){
     document.getElementById("qText").innerText = "Bu kategoride soru yok";
@@ -122,6 +154,7 @@ function selectCategory(cat){
     document.getElementById("B").innerText = "";
     document.getElementById("C").innerText = "";
     document.getElementById("D").innerText = "";
+    document.getElementById("timer").innerText = "";
     return;
   }
 
@@ -132,13 +165,20 @@ function selectCategory(cat){
   document.getElementById("B").innerText = "B) " + q.B;
   document.getElementById("C").innerText = "C) " + q.C;
   document.getElementById("D").innerText = "D) " + q.D;
+
+  document.getElementById("info").innerText = "";
+
+  startTimer();
+}
+
+function nextQuestion(){
+  loadQuestion();
 }
 
 function answer(choice){
-  if(!current) return;
-
   const q = questions[current][0];
-  if(!q) return;
+
+  clearInterval(timer);
 
   if(choice === q.correct){
     confetti();
@@ -146,6 +186,10 @@ function answer(choice){
   } else {
     document.getElementById("info").innerText = "sazan oldun yazık sana";
   }
+
+  setTimeout(() => {
+    nextQuestion();
+  }, 1000);
 }
 
 </script>
