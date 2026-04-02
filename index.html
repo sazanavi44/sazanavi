@@ -15,7 +15,8 @@ body{
   color:white;
 }
 
-@keyframes shake {
+/* SHAKE */
+@keyframes shake{
   0%{transform:translate(0,0);}
   25%{transform:translate(-5px,5px);}
   50%{transform:translate(5px,-5px);}
@@ -24,13 +25,37 @@ body{
 }
 .shake{animation:shake 0.4s;}
 
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:180px;
+  background:rgba(0,60,120,0.9);
+  padding:12px;
+  border-radius:15px;
+}
+
+.menu-btn{
+  width:100%;
+  margin:6px 0;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* MAIN */
+.main{
+  margin-left:220px;
+  padding:30px;
+}
+
 .box{
-  width:90%;
-  max-width:500px;
-  margin:60px auto;
   background:rgba(0,60,120,0.8);
   padding:20px;
   border-radius:15px;
+  max-width:500px;
 }
 
 button{
@@ -47,61 +72,109 @@ button{
 }
 
 #timer{
-  font-weight:bold;
   color:yellow;
+  font-weight:bold;
+}
+
+/* FOOTER */
+.footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  text-align:center;
+  font-size:13px;
+  padding:6px;
+  background:rgba(0,0,0,0.2);
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h2>SAZANAVİ</h2>
-
-  <div id="timer">Süre: 180</div>
-
-  <h3 id="q"></h3>
-
-  <button id="A" onclick="answer('A')"></button>
-  <button id="B" onclick="answer('B')"></button>
-  <button id="C" onclick="answer('C')"></button>
-  <button id="D" onclick="answer('D')"></button>
-
-  <hr>
-
-  <button class="joker" onclick="joker5050()">🎯 50/50 Joker</button>
-  <button class="joker" onclick="timeJoker()">⏱ +30sn Joker</button>
-
-  <p id="info"></p>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <button class="menu-btn" onclick="selectCategory('turkce')">Türkçe</button>
+  <button class="menu-btn" onclick="selectCategory('matematik')">Matematik</button>
+  <button class="menu-btn" onclick="selectCategory('fen')">Fen</button>
 </div>
+
+<!-- MAIN -->
+<div class="main">
+  <h2>Netbilim Dershanesi Sorularına Hoş Geldiniz</h2>
+  <p>Sizi sazan gibi düşürecek sorular burada.</p>
+
+  <div class="box">
+    <div id="timer">Süre: 180</div>
+
+    <h3 id="q">Bir kategori seç</h3>
+
+    <button id="A" onclick="answer('A')"></button>
+    <button id="B" onclick="answer('B')"></button>
+    <button id="C" onclick="answer('C')"></button>
+    <button id="D" onclick="answer('D')"></button>
+
+    <hr>
+
+    <button class="joker" onclick="joker5050()">🎯 50/50</button>
+    <button class="joker" onclick="timeJoker()">⏱ +30sn</button>
+
+    <p id="info"></p>
+  </div>
+</div>
+
+<div class="footer">Yapımcı: Emir ALP</div>
 
 <script>
 
-const q = {
-  soru:"Bir öğrenci 240 N yükü kaldırıyor... doğru cevap hangisi?",
-  A:"I: 30 N — II: 90 N — III: 480 J",
-  B:"I: 40 N — II: 90 N — III: 480 J",
-  C:"I: 30 N — II: 60 N — III: 480 J",
-  D:"I: 40 N — II: 60 N — III: 240 J",
-  dogru:"B"
+const questions = {
+  turkce: [],
+  matematik: [],
+  fen: [{
+    q:"Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
+    A:"I: 30 N — II: 90 N — III: 480 J",
+    B:"I: 40 N — II: 90 N — III: 480 J",
+    C:"I: 30 N — II: 60 N — III: 480 J",
+    D:"I: 40 N — II: 60 N — III: 240 J",
+    correct:"B"
+  }]
 };
 
-let time=180;
+let current=null;
 let timer;
+let time=180;
 let used5050=false;
 let usedTime=false;
 
+function selectCategory(cat){
+  current=cat;
+
+  if(!questions[cat] || questions[cat].length===0){
+    document.getElementById("q").innerText="Bu kategoride soru yok";
+    return;
+  }
+
+  load();
+}
+
 function load(){
-  document.getElementById("q").innerText=q.soru;
+  const q=questions[current][0];
+
+  document.getElementById("q").innerText=q.q;
   document.getElementById("A").innerText="A) "+q.A;
   document.getElementById("B").innerText="B) "+q.B;
   document.getElementById("C").innerText="C) "+q.C;
   document.getElementById("D").innerText="D) "+q.D;
 
+  time=180;
+  used5050=false;
+  usedTime=false;
+
   startTimer();
 }
 
 function startTimer(){
+  clearInterval(timer);
+
   timer=setInterval(()=>{
     time--;
     document.getElementById("timer").innerText="Süre: "+time;
@@ -115,8 +188,9 @@ function startTimer(){
 
 function answer(x){
   clearInterval(timer);
+  const q=questions[current][0];
 
-  if(x===q.dogru){
+  if(x===q.correct){
     confetti();
     document.getElementById("info").innerText="Doğru 🎉";
   }else{
@@ -127,15 +201,16 @@ function answer(x){
 function wrong(){
   document.body.classList.add("shake");
   setTimeout(()=>document.body.classList.remove("shake"),400);
-  document.getElementById("info").innerText="YANLIŞ YAPMAK YOK";
+  document.getElementById("info").innerText="Avlandın PAAHAHAHAHAH";
 }
 
 function joker5050(){
   if(used5050) return;
-
   used5050=true;
 
-  const wrongs=["A","C","D"].filter(x=>x!==q.dogru);
+  const q=questions[current][0];
+  const wrongs=["A","B","C","D"].filter(x=>x!==q.correct);
+
   wrongs.slice(0,2).forEach(id=>{
     document.getElementById(id).style.display="none";
   });
@@ -143,12 +218,9 @@ function joker5050(){
 
 function timeJoker(){
   if(usedTime) return;
-
   usedTime=true;
   time+=30;
 }
-
-load();
 
 </script>
 
