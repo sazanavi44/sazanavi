@@ -25,7 +25,6 @@ body{
 }
 .shake{animation:shake 0.4s;}
 
-/* SIDEBAR */
 .sidebar{
   position:fixed;
   top:15px;
@@ -45,7 +44,6 @@ body{
   cursor:pointer;
 }
 
-/* MAIN */
 .main{
   margin-left:220px;
   padding:30px;
@@ -76,7 +74,10 @@ button{
   font-weight:bold;
 }
 
-/* FOOTER */
+.hidden{
+  display:none;
+}
+
 .footer{
   position:fixed;
   bottom:0;
@@ -91,32 +92,30 @@ button{
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-  <button class="menu-btn" onclick="selectCategory('turkce')">Türkçe</button>
   <button class="menu-btn" onclick="selectCategory('matematik')">Matematik</button>
   <button class="menu-btn" onclick="selectCategory('fen')">Fen</button>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <h2>Netbilim Dershanesi Sorularına Hoş Geldiniz</h2>
   <p>Sizi sazan gibi düşürecek sorular burada.</p>
 
   <div class="box">
-    <div id="timer">Süre: 180</div>
+    <div id="timer"></div>
 
     <h3 id="q">Bir kategori seç</h3>
 
-    <button id="A" onclick="answer('A')"></button>
-    <button id="B" onclick="answer('B')"></button>
-    <button id="C" onclick="answer('C')"></button>
-    <button id="D" onclick="answer('D')"></button>
+    <!-- ŞIKLAR BAŞTA GİZLİ -->
+    <button id="A" class="hidden" onclick="answer('A')"></button>
+    <button id="B" class="hidden" onclick="answer('B')"></button>
+    <button id="C" class="hidden" onclick="answer('C')"></button>
+    <button id="D" class="hidden" onclick="answer('D')"></button>
 
     <hr>
 
-    <button class="joker" onclick="joker5050()">🎯 50/50</button>
-    <button class="joker" onclick="timeJoker()">⏱ +30sn</button>
+    <button class="joker hidden" id="j1" onclick="joker5050()">🎯 50/50</button>
+    <button class="joker hidden" id="j2" onclick="timeJoker()">⏱ +30sn</button>
 
     <p id="info"></p>
   </div>
@@ -127,7 +126,6 @@ button{
 <script>
 
 const questions = {
-  turkce: [],
   matematik: [],
   fen: [{
     q:"Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
@@ -142,8 +140,6 @@ const questions = {
 let current=null;
 let timer;
 let time=180;
-let used5050=false;
-let usedTime=false;
 
 function selectCategory(cat){
   current=cat;
@@ -160,15 +156,20 @@ function load(){
   const q=questions[current][0];
 
   document.getElementById("q").innerText=q.q;
+
+  ["A","B","C","D"].forEach(id=>{
+    document.getElementById(id).classList.remove("hidden");
+  });
+
+  document.getElementById("j1").classList.remove("hidden");
+  document.getElementById("j2").classList.remove("hidden");
+
   document.getElementById("A").innerText="A) "+q.A;
   document.getElementById("B").innerText="B) "+q.B;
   document.getElementById("C").innerText="C) "+q.C;
   document.getElementById("D").innerText="D) "+q.D;
 
   time=180;
-  used5050=false;
-  usedTime=false;
-
   startTimer();
 }
 
@@ -201,13 +202,10 @@ function answer(x){
 function wrong(){
   document.body.classList.add("shake");
   setTimeout(()=>document.body.classList.remove("shake"),400);
-  document.getElementById("info").innerText="Avlandın PAAHAHAHAHAH";
+  document.getElementById("info").innerText="sazan oldun yazık sana";
 }
 
 function joker5050(){
-  if(used5050) return;
-  used5050=true;
-
   const q=questions[current][0];
   const wrongs=["A","B","C","D"].filter(x=>x!==q.correct);
 
@@ -217,8 +215,6 @@ function joker5050(){
 }
 
 function timeJoker(){
-  if(usedTime) return;
-  usedTime=true;
   time+=30;
 }
 
