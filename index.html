@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Netbilim Dershanesi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sazanavi</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -15,204 +15,140 @@ body{
   color:white;
 }
 
-/* 🔥 SHAKE EFEKTİ */
 @keyframes shake {
-  0% { transform: translate(0,0); }
-  20% { transform: translate(-6px,3px); }
-  40% { transform: translate(6px,-3px); }
-  60% { transform: translate(-6px,3px); }
-  80% { transform: translate(6px,-3px); }
-  100% { transform: translate(0,0); }
+  0%{transform:translate(0,0);}
+  25%{transform:translate(-5px,5px);}
+  50%{transform:translate(5px,-5px);}
+  75%{transform:translate(-5px,5px);}
+  100%{transform:translate(0,0);}
 }
-
-.shake{
-  animation: shake 0.4s;
-}
-
-.sidebar{
-  position:fixed;
-  top:15px;
-  left:15px;
-  width:180px;
-  background:rgba(0,60,120,0.85);
-  padding:12px;
-  border-radius:15px;
-}
-
-.menu-btn{
-  width:100%;
-  margin:6px 0;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-.card{
-  margin-left:220px;
-  padding:30px;
-}
+.shake{animation:shake 0.4s;}
 
 .box{
-  background:rgba(0,60,120,0.75);
+  width:90%;
+  max-width:500px;
+  margin:60px auto;
+  background:rgba(0,60,120,0.8);
   padding:20px;
   border-radius:15px;
 }
 
-button.option{
+button{
   width:100%;
-  margin:6px 0;
   padding:10px;
+  margin:6px 0;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
   cursor:pointer;
 }
 
-.footer{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  text-align:center;
-  font-size:13px;
-  padding:6px;
-  background:rgba(0,0,0,0.2);
+.joker{
+  background:orange;
 }
 
 #timer{
-  font-size:18px;
-  margin-bottom:10px;
-  color:yellow;
   font-weight:bold;
+  color:yellow;
 }
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-  <button class="menu-btn" onclick="selectCategory('turkce')">Türkçe</button>
-  <button class="menu-btn" onclick="selectCategory('matematik')">Matematik</button>
-  <button class="menu-btn" onclick="selectCategory('fen')">Fen</button>
+<div class="box">
+  <h2>SAZANAVİ</h2>
+
+  <div id="timer">Süre: 180</div>
+
+  <h3 id="q"></h3>
+
+  <button id="A" onclick="answer('A')"></button>
+  <button id="B" onclick="answer('B')"></button>
+  <button id="C" onclick="answer('C')"></button>
+  <button id="D" onclick="answer('D')"></button>
+
+  <hr>
+
+  <button class="joker" onclick="joker5050()">🎯 50/50 Joker</button>
+  <button class="joker" onclick="timeJoker()">⏱ +30sn Joker</button>
+
+  <p id="info"></p>
 </div>
-
-<div class="card">
-  <h2>Netbilim Dershanesi Sorularına Hoş Geldiniz</h2>
-  <p>Sizi sazan gibi düşürecek sorular burada.</p>
-
-  <div class="box">
-    <div id="timer">Süre: 180</div>
-
-    <h3 id="qText">Bir kategori seç</h3>
-
-    <button class="option" id="A" onclick="answer('A')"></button>
-    <button class="option" id="B" onclick="answer('B')"></button>
-    <button class="option" id="C" onclick="answer('C')"></button>
-    <button class="option" id="D" onclick="answer('D')"></button>
-
-    <p id="info"></p>
-  </div>
-</div>
-
-<div class="footer">Yapımcı: Emir ALP</div>
 
 <script>
 
-const questions = {
-  turkce: [],
-  matematik: [],
-  fen: [
-    {
-      q: "Bir öğrenci 240 N ağırlığındaki yükü 3 hareketli ve 1 sabit makaradan oluşan sistemle yukarı çıkarıyor. Daha sonra yük 8 m uzunluk ve 2 m yüksekliğe sahip sürtünmeli eğik düzlemden çıkarılıyor (sürtünme 30 N). Buna göre I, II ve III hangisidir?",
-      A: "I: 30 N — II: 90 N — III: 480 J",
-      B: "I: 40 N — II: 90 N — III: 480 J",
-      C: "I: 30 N — II: 60 N — III: 480 J",
-      D: "I: 40 N — II: 60 N — III: 240 J",
-      correct: "B"
-    }
-  ]
+const q = {
+  soru:"Bir öğrenci 240 N yükü kaldırıyor... doğru cevap hangisi?",
+  A:"I: 30 N — II: 90 N — III: 480 J",
+  B:"I: 40 N — II: 90 N — III: 480 J",
+  C:"I: 30 N — II: 60 N — III: 480 J",
+  D:"I: 40 N — II: 60 N — III: 240 J",
+  dogru:"B"
 };
 
-let current = null;
-let timer = null;
-let timeLeft = 180;
+let time=180;
+let timer;
+let used5050=false;
+let usedTime=false;
 
-function shakeScreen(){
-  document.body.classList.add("shake");
-  setTimeout(() => {
-    document.body.classList.remove("shake");
-  }, 400);
-}
-
-function startTimer(){
-  clearInterval(timer);
-  timeLeft = 180;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = "Süre: " + timeLeft;
-
-    if(timeLeft <= 0){
-      clearInterval(timer);
-      document.getElementById("info").innerText = "sazan oldun yazık sana";
-      shakeScreen();
-      setTimeout(nextQuestion, 1000);
-    }
-  }, 1000);
-}
-
-function selectCategory(cat){
-  current = cat;
-  loadQuestion();
-}
-
-function loadQuestion(){
-
-  const list = questions[current];
-
-  if(!list || list.length === 0){
-    document.getElementById("qText").innerText = "Bu kategoride soru yok";
-    document.getElementById("A").innerText = "";
-    document.getElementById("B").innerText = "";
-    document.getElementById("C").innerText = "";
-    document.getElementById("D").innerText = "";
-    document.getElementById("timer").innerText = "";
-    return;
-  }
-
-  const q = list[0];
-
-  document.getElementById("qText").innerText = q.q;
-  document.getElementById("A").innerText = "A) " + q.A;
-  document.getElementById("B").innerText = "B) " + q.B;
-  document.getElementById("C").innerText = "C) " + q.C;
-  document.getElementById("D").innerText = "D) " + q.D;
-
-  document.getElementById("info").innerText = "";
+function load(){
+  document.getElementById("q").innerText=q.soru;
+  document.getElementById("A").innerText="A) "+q.A;
+  document.getElementById("B").innerText="B) "+q.B;
+  document.getElementById("C").innerText="C) "+q.C;
+  document.getElementById("D").innerText="D) "+q.D;
 
   startTimer();
 }
 
-function nextQuestion(){
-  loadQuestion();
+function startTimer(){
+  timer=setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText="Süre: "+time;
+
+    if(time<=0){
+      clearInterval(timer);
+      wrong();
+    }
+  },1000);
 }
 
-function answer(choice){
-  const q = questions[current][0];
-
+function answer(x){
   clearInterval(timer);
 
-  if(choice === q.correct){
+  if(x===q.dogru){
     confetti();
-    document.getElementById("info").innerText = "Doğru 🎉";
-  } else {
-    document.getElementById("info").innerText = "sazan oldun yazık sana";
-    shakeScreen(); // 🔥 EKLENDİ
+    document.getElementById("info").innerText="Doğru 🎉";
+  }else{
+    wrong();
   }
-
-  setTimeout(() => {
-    nextQuestion();
-  }, 1000);
 }
+
+function wrong(){
+  document.body.classList.add("shake");
+  setTimeout(()=>document.body.classList.remove("shake"),400);
+  document.getElementById("info").innerText="YANLIŞ YAPMAK YOK";
+}
+
+function joker5050(){
+  if(used5050) return;
+
+  used5050=true;
+
+  const wrongs=["A","C","D"].filter(x=>x!==q.dogru);
+  wrongs.slice(0,2).forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+}
+
+function timeJoker(){
+  if(usedTime) return;
+
+  usedTime=true;
+  time+=30;
+}
+
+load();
 
 </script>
 
